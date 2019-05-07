@@ -5,16 +5,10 @@ var ops = require("ndarray-ops")
 
 
 var hookPage = chrome.extension.getBackgroundPage();
+
 const session = new onnxjs.InferenceSession();
 const url = './model_xu_10_onnx.onnx';
-(async () => {await session.loadModel(url)})()
-// chrome.runtime.onInstalled.addListener(function() {
-//     chrome.contextMenus.create({
-//       "id": "sampleContextMenu",
-//       "title": "Sample Context Menu",
-//       "contexts": ["selection"]
-//     });
-//   });
+(async () => {await session.loadModel(url)})();
 
 chrome.runtime.onConnect.addListener(function(port) {
     port.onMessage.addListener(async function(msg) {
@@ -24,18 +18,32 @@ chrome.runtime.onConnect.addListener(function(port) {
         const arr = getRedChannel(parsedImg);
         const preprocessedData = preprocess(arr, 256, 256);
         // const inputTensor = new onnx.Tensor(preprocessedData, 'float32', [1, 3, width, height]);
-        const inputTensor = new onnx.Tensor(preprocessedData, 'float32', [1, 1, 256, 256]);
-        const outputMap = await session.run([inputTensor]);
-        const outputData = outputMap.values().next().value.data;
-        const answer = {
-            ImageHash: msg.ImageHash,
-            Result: outputData[1]
-        }
-        port.postMessage(answer);
+        const result1 = await analyseXuNet(preprocessedData);
+        result1.ImageHash = msg.ImageHash;
+        port.postMessage(result1);
+        const result2 = analyseRS(preprocessedData);
+        result2.ImageHash = msg.ImageHash;
+        port.postMessage(result2);
     });
 });
 
 hookPage.console.log("background online");
+
+function analyseRS(inputData) {
+    return {};
+}
+
+async function analyseXuNet(inputData) {
+    const inputTensor = new onnx.Tensor(inputData, 'float32', [1, 1, 256, 256]);
+    const outputMap = await session.run([inputTensor]);
+    const outputData = outputMap.values().next().value.data[1].toFixed(3);
+    const detectorName = "XuNet"
+    const result = {
+        Name: detectorName,
+        Result: outputData
+    };
+    return result;
+}
 
 function getRedChannel(image) {
     const buffer = [];

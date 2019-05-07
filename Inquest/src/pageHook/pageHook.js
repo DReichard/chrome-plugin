@@ -37,17 +37,25 @@ const forwardPort = chrome.runtime.connect({name: forwardPortName});
 
 forwardPort.onMessage.addListener(function(msg) {
     const imageElement = imageElements[msg.ImageHash][0];
-    const containerElement = document.createElement('span');
-    containerElement.className += "inquest-container";
-    imageElement.parentNode.replaceChild(containerElement, imageElement);
-    containerElement.appendChild(imageElement);
-    const subcontainerElement = document.createElement('h2');
-    containerElement.appendChild(subcontainerElement);
-    const labelElement = document.createElement('span');
-    labelElement.innerText = (msg.Result.toFixed(3));
-    subcontainerElement.appendChild(labelElement);
-    // Result
-
+    if (!imageElement.parentNode.className.includes("inquest-container")) {
+        const containerElement = document.createElement('div');
+        containerElement.style.display = "inline-block";
+        containerElement.className += "inquest-container";
+        imageElement.parentNode.replaceChild(containerElement, imageElement);
+        containerElement.appendChild(imageElement);
+    }
+    const parentNode = imageElement.parentNode;
+    if ([...parentNode.children].some(x => x.tagName.toUpperCase() === "H2")) {
+        const subContainerElement = [...parentNode.children].find(x => x.tagName.toUpperCase() === "H2");
+        const labelElement = [...subContainerElement.children].find(x => x.tagName.toUpperCase() === "SPAN");
+        labelElement.innerText +=  msg.Name + ": " + msg.Result;
+    } else {
+        const subcontainerElement = document.createElement('h2');
+        parentNode.appendChild(subcontainerElement);
+        const labelElement = document.createElement('span');
+        labelElement.innerText = msg.Name + ": " + msg.Result;
+        subcontainerElement.appendChild(labelElement);
+    }
 });
 
 console.log("pageHook online")
