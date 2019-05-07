@@ -48,11 +48,12 @@ forwardPort.onMessage.addListener(function(msg) {
     if ([...parentNode.children].some(x => x.tagName.toUpperCase() === "H2")) {
         const subContainerElement = [...parentNode.children].find(x => x.tagName.toUpperCase() === "H2");
         const labelElement = [...subContainerElement.children].find(x => x.tagName.toUpperCase() === "SPAN");
-        labelElement.innerText +=  msg.Name + ": " + msg.Result;
+        labelElement.innerText += "\n\ " + msg.Name + ": " + msg.Result;
     } else {
         const subcontainerElement = document.createElement('h2');
         parentNode.appendChild(subcontainerElement);
         const labelElement = document.createElement('span');
+        labelElement.style.whiteSpace = "pre";
         labelElement.innerText = msg.Name + ": " + msg.Result;
         subcontainerElement.appendChild(labelElement);
     }
