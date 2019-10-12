@@ -38,6 +38,13 @@
             "script": "back-build",
             "path": "Inquest/",
             "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "back-build-br",
+            "path": "Inquest/",
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

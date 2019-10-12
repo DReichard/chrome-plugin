@@ -12,4 +12,5 @@ module.exports = {
       'process.browser': 'true'
     })
   ],
+  node: { fs: 'empty' }
 };

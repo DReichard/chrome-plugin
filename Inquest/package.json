@@ -3,14 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "back-build": "webpack --config=src/background/webpack.config.js",
+    "back-build": "webpack --config=src/background/webpack.config.jss --mode=development",
     "back-watch": "webpack --config=src/background/webpack.config.js --mode=development -w --display=verbose",
     "hook-watch": "webpack --config=src/pageHook/webpack.config.js --mode=development -w --display=verbose",
-    "hook-build": "webpack --config=src/pageHook/webpack.config.js",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "hook-build": "webpack --config=src/pageHook/webpack.config.js --mode=development"
   },
   "private": true,
   "dependencies": {
@@ -30,6 +26,7 @@
     "ndarray": "^1.0.18",
     "ndarray-ops": "^1.2.2",
     "onnxjs": "^0.1.5",
+    "opencv4nodejs": "^5.3.0",
     "rxjs": "~6.2.0",
     "zone.js": "~0.8.26"
   },

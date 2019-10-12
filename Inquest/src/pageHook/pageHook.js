@@ -2,19 +2,13 @@ const md5 = require("md5");
 require('./pageHook.css');
 
 const forwardPortName = "inquestForward";
-
-function toDataURL(url, callback){
-    const xhr = new XMLHttpRequest();
-    xhr.open('get', url);
-    xhr.responseType = 'blob';
-    xhr.onload = function(){
-        const fr = new FileReader();
-        fr.onload = function(){
-        callback(this.result);
-        }; 
-        fr.readAsDataURL(xhr.response);
-    };
-    xhr.send();
+const forwardPort = chrome.runtime.connect({name: forwardPortName});
+forwardPort.onMessage.addListener(processMessage);
+console.log("pageHook online")
+const imageElements = {}
+const images = document.getElementsByTagName('img'); 
+for(let i = 0; i < images.length; i++) {
+    processImage(images[i], forwardPort);
 }
 
 function processImage(img, port) {
@@ -33,10 +27,8 @@ function processImage(img, port) {
     });
 }
 
-const forwardPort = chrome.runtime.connect({name: forwardPortName});
-
-forwardPort.onMessage.addListener(function(msg) {
-    const imageElement = imageElements[msg.ImageHash][0];
+function processMessage(message) {
+    const imageElement = imageElements[message.ImageHash][0];
     if (!imageElement.parentNode.className.includes("inquest-container")) {
         const containerElement = document.createElement('div');
         containerElement.style.display = "inline-block";
@@ -48,20 +40,27 @@ forwardPort.onMessage.addListener(function(msg) {
     if ([...parentNode.children].some(x => x.tagName.toUpperCase() === "H2")) {
         const subContainerElement = [...parentNode.children].find(x => x.tagName.toUpperCase() === "H2");
         const labelElement = [...subContainerElement.children].find(x => x.tagName.toUpperCase() === "SPAN");
-        labelElement.innerText += "\n\ " + msg.Name + ": " + msg.Result;
+        labelElement.innerText += "\n\ " + message.Name + ": " + message.Result;
     } else {
         const subcontainerElement = document.createElement('h2');
         parentNode.appendChild(subcontainerElement);
         const labelElement = document.createElement('span');
         labelElement.style.whiteSpace = "pre";
-        labelElement.innerText = msg.Name + ": " + msg.Result;
+        labelElement.innerText = message.Name + ": " + message.Result;
         subcontainerElement.appendChild(labelElement);
     }
-});
+}
 
-console.log("pageHook online")
-const imageElements = {}
-const images = document.getElementsByTagName('img'); 
-for(let i = 0; i < images.length; i++) {
-    processImage(images[i], forwardPort);
+function toDataURL(url, callback){
+    const xhr = new XMLHttpRequest();
+    xhr.open('get', url);
+    xhr.responseType = 'blob';
+    xhr.onload = function(){
+        const fr = new FileReader();
+        fr.onload = function(){
+            callback(this.result);
+        }; 
+        fr.readAsDataURL(xhr.response);
+    };
+    xhr.send();
 }
