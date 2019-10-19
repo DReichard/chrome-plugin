@@ -25,9 +25,9 @@ if (!module.parent) {
 
 async function ImageMessagePipeline(msg) {
 	const preprocessedData = await ImagePipeline(msg.ImageDataUrl, imageSize);
-	// const result2 = RSwrapper(preprocessedData);
-	// result2.ImageHash = msg.ImageHash;
-	// port.postMessage(result2);
+	const result2 = await RSwrapper(preprocessedData);
+	result2.ImageHash = msg.ImageHash;
+	port.postMessage(result2);
 	const result3 = await ResNetWrapper(preprocessedData);
 	result3.ImageHash = msg.ImageHash;
 	port.postMessage(result3);	
@@ -40,8 +40,9 @@ async function ImagePipeline(imageBase64str, imageSize) {
     return batched;
 }
 
-function RSwrapper(inputData) {
-    const outputData = Analytics.calculateRS(inputData, imageSize); 
+async function RSwrapper(inputData) {
+    const inputArray = await inputData.flatten().array();
+    const outputData = Analytics.calculateRS(inputArray, imageSize); 
     const detectorName = "RS"
     const result = {
         Name: detectorName,
@@ -51,7 +52,7 @@ function RSwrapper(inputData) {
 }
 
 async function ResNetWrapper(inputData) {
-    const output = model.predict(inputData).arraySync()[0][1].toFixed(6);
+    const output = (await model.predict(inputData).array())[0][1].toFixed(6);
     const detectorName = "ResNet"
     const result = {
         Name: detectorName,
