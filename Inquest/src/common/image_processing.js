@@ -7,7 +7,7 @@ global.Module = {
 };
 const cv = require('./assets/js/opencv.js');
 
-module.exports = { getRedChannel, base64ToImage };
+module.exports = { getRedChannel, base64ToImage, base64ToMat };
 
 
 function getRedChannel(image, imageSize) {
@@ -21,11 +21,17 @@ function getRedChannel(image, imageSize) {
     return buffer;
 }
 
-async function base64ToImage(str) {
+async function base64ToMat(str) {
     const img = await loadImage(str)
     const mat = cv.imread(img)
     return mat; 
 }
+
+async function base64ToImage(str) {
+    const img = await loadImage(str)
+    return img; 
+}
+
 
 function loadImage(src) {
     return new Promise((resolve, reject) => {

@@ -11,20 +11,33 @@ for(let i = 0; i < images.length; i++) {
     processImage(images[i], forwardPort);
 }
 
-function processImage(img, port) {
-    toDataURL(img.src, function(dataURL){
-        const hash = md5(dataURL);  
-        if (!imageElements[hash]) {
-            imageElements[hash] = [img];
-        } else {
-            imageElements[hash].push(img);
-        }
-        const message = {
-            ImageHash: hash,
-            ImageSrc: dataURL
-        };
-        port.postMessage(message);
-    });
+async function processImage(img, port) {
+    const dataUrl = await awaitDataUrl(img.src);
+    const hash = md5(dataUrl);  
+    if (!imageElements[hash]) {
+        imageElements[hash] = [img];
+    } else {
+        imageElements[hash].push(img);
+    }
+    const message = {
+        ImageHash: hash,
+        ImageDataUrl: dataUrl,
+        ImageSrc: img.src
+    };
+    port.postMessage(message);
+    // toDataURL(img.src, function(dataURL){
+    //     const hash = md5(dataURL);  
+    //     if (!imageElements[hash]) {
+    //         imageElements[hash] = [img];
+    //     } else {
+    //         imageElements[hash].push(img);
+    //     }
+    //     const message = {
+    //         ImageHash: hash,
+    //         ImageSrc: dataURL
+    //     };
+    //     port.postMessage(message);
+    // });
 }
 
 function processMessage(message) {
@@ -50,17 +63,18 @@ function processMessage(message) {
         subcontainerElement.appendChild(labelElement);
     }
 }
-
-function toDataURL(url, callback){
-    const xhr = new XMLHttpRequest();
-    xhr.open('get', url);
-    xhr.responseType = 'blob';
-    xhr.onload = function(){
-        const fr = new FileReader();
-        fr.onload = function(){
-            callback(this.result);
-        }; 
-        fr.readAsDataURL(xhr.response);
-    };
-    xhr.send();
+function awaitDataUrl(url) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('get', url);
+        xhr.responseType = 'blob';
+        xhr.onload = function(){
+            const fr = new FileReader();
+            fr.onload = function(){
+                resolve(this.result);
+            }; 
+            fr.readAsDataURL(xhr.response);
+        };
+        xhr.send();
+      });
 }
