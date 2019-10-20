@@ -42,17 +42,17 @@ async function ImagePipeline(imageBase64str, imageSize) {
 
 async function RSwrapper(inputData) {
     const inputArray = await inputData.flatten().array();
-    const outputData = Analytics.calculateRS(inputArray, imageSize); 
+    const outputData = Analytics.calculateRS(inputArray, imageSize).toFixed(2); 
     const detectorName = "RS"
     const result = {
         Name: detectorName,
-        Result: outputData
+        Result: outputData + "  "
     };
     return result;
 }
 
 async function ResNetWrapper(inputData) {
-    const output = (await model.predict(inputData).array())[0][1].toFixed(6);
+    const output = (await model.predict(inputData).array())[0][1].toFixed(2);
     const detectorName = "ResNet"
     const result = {
         Name: detectorName,
