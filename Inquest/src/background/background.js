@@ -1,6 +1,6 @@
 
-const ImageUtils = require("../common/image_processing");
-const Analytics = require("../analytics/rs");
+const ImageUtils = require("../image_loading/image_processing");
+const Analytics = require("../rs_algorithm/rs");
 const tf = require('@tensorflow/tfjs');
 
 var imageSize = 128;

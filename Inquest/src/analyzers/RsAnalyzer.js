@@ -1,0 +1,5 @@
+class RsAnalyzer {
+    Analyze(image) {
+
+    }
+}

@@ -1,0 +1,5 @@
+class ResNetAnalyzer {
+    Analyze(image) {
+        
+    }
+}
