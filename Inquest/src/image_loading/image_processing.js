@@ -5,7 +5,7 @@ global.Module = {
         return url;
     }
 };
-module.exports = { getRedChannel, base64ToImage };
+module.exports = { getRedChannel, base64ToImage, getDataUrlAsync, imageBlockSplit };
 
 
 function getRedChannel(image, imageSize) {
@@ -33,7 +33,7 @@ function loadImage(src) {
     });
   };
 
-function getDataUrl(url) {
+function getDataUrlAsync(url) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('get', url);
@@ -47,5 +47,25 @@ function getDataUrl(url) {
         };
         xhr.send();
     });
+}
+
+function imageBlockSplit(image, blockHeight, blockWidth) {
+    const imagePieces = [];
+    const numRowsToCut = image.height / blockHeight >> 0;
+    const numColsToCut = image.width / blockWidth >> 0;
+    const backPage = chrome.extension.getBackgroundPage().document;
+    for(var x = 0; x < numColsToCut; ++x) {
+        for(var y = 0; y < numRowsToCut; ++y) {
+            var canvas = backPage.createElement('canvas');
+            canvas.width = blockWidth;
+            canvas.height = blockHeight;
+            var context = canvas.getContext('2d');
+            context.drawImage(image, x * blockWidth, y * blockHeight, blockWidth, blockHeight, 0, 0, canvas.width, canvas.height);
+            canvas.inquest_offsetX = x * blockWidth;
+            canvas.inquest_offsetY = y * blockHeight;
+            imagePieces.push(canvas);
+        }
+    }
+    return imagePieces;
 }
   

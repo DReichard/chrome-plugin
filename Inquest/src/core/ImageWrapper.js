@@ -28,9 +28,16 @@ export default class ImageWrapper {
 
     static async FromBase64StringAsync(imageBase64str) {
         const parsedImg = await ImageUtils.base64ToImage(imageBase64str);
-        const img = tf.browser.fromPixels(parsedImg, 1).toFloat();
-        const batched = img.reshape([1, 1, 128, 128]);
-        return new ImageWrapper(batched);
+        const imageBlocks = ImageUtils.imageBlockSplit(parsedImg, 128, 128);
+        const results = imageBlocks.map(p => {
+            const img = tf.browser.fromPixels(p, 1).toFloat();
+            const reshapedArray = img.reshape([1, 1, 128, 128]);
+            const result = ImageWrapper.FromTensor(reshapedArray);
+            result.offsetX = p.inquest_offsetX;
+            result.offsetY = p.inquest_offsetY;
+            return result;
+        });
+        return results;
     }
 
     static async FromPathAsync(url) {

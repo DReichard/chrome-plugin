@@ -8,13 +8,13 @@ const url = './model.json';
 
 
 const imagePipeline = new ImagePipeline();
-const resNetAnalyzer = new ResNetAnalyzer(url);
-const rsAnalyzer = new RsAnalyzer(); 
+const resNetAnalyzer = new ResNetAnalyzer(url, 0.5);
+const rsAnalyzer = new RsAnalyzer(0.5); 
 imagePipeline.RegisterAnalyzer(resNetAnalyzer);
 imagePipeline.RegisterAnalyzer(rsAnalyzer);
 imagePipeline.RegisterCallback(PostResponse);
 
-var hookPage = chrome.extension.getBackgroundPage();
+const hookPage = chrome.extension.getBackgroundPage();
 resNetAnalyzer.Initialize().then(() => {
     chrome.runtime.onConnect.addListener(function(port) {
         this.port = port;
@@ -24,11 +24,19 @@ resNetAnalyzer.Initialize().then(() => {
 });
 
 async function ImageMessagePipeline(msg) {
-    const image = await ImageWrapper.FromBase64StringAsync(msg.ImageDataUrl);
-    imagePipeline.Analyze(image, msg.ImageHash);
+    const images = await ImageWrapper.FromBase64StringAsync(msg.ImageDataUrl);
+    images.forEach(p => {
+        const msgIteration = {};
+        Object.assign(msgIteration, msg);
+        msgIteration.offsetX = p.offsetX;
+        msgIteration.offsetY = p.offsetY;
+        imagePipeline.Analyze(p, msgIteration);
+    });
 }
 
-function PostResponse(analysisResult, hash) {
-    analysisResult.ImageHash = hash;
+function PostResponse(analysisResult, msg) {
+    analysisResult.ImageHash = msg.ImageHash;
+    analysisResult.offsetX = msg.offsetX;
+    analysisResult.offsetY = msg.offsetY;
 	port.postMessage(analysisResult);	
 }

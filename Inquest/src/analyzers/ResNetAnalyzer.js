@@ -1,10 +1,12 @@
+import AnalysisResult from '../core/AnalysisResult';
 
 const tf = require('@tensorflow/tfjs');
 
 export default class ResNetAnalyzer {
 
-    constructor(pathToModel) {
+    constructor(pathToModel, threshold) {
         this._pathToModel = pathToModel;
+        this._threshold = threshold;
     }
 
     async Initialize() {
@@ -12,13 +14,16 @@ export default class ResNetAnalyzer {
     }
 
     async Analyze(image) {
-        const test = image;
         const output = (await this._model.predict(image.Image).array())[0][1].toFixed(2);
         const detectorName = "ResNet"
-        const result = {
-            Name: detectorName,
-            Result: output
-        };
+        const result = new AnalysisResult();
+        result.Name = detectorName;
+        result.Result = output;
+        if (result.Result >= this._threshold) {
+            result.Alert = true;
+        } else {
+            result.Alert = false;
+        }
         return result;
     }
 }

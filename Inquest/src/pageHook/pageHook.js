@@ -1,18 +1,21 @@
 const md5 = require("md5");
 require('./pageHook.css');
+const ImageUtils = require("../image_loading/image_processing")
 
 const forwardPortName = "inquestForward";
 const forwardPort = chrome.runtime.connect({name: forwardPortName});
 forwardPort.onMessage.addListener(processMessage);
-console.log("pageHook online")
+console.log("PageHook online")
 const imageElements = {}
 const images = document.getElementsByTagName('img'); 
 for(let i = 0; i < images.length; i++) {
-    processImage(images[i], forwardPort);
+    if (images[i].height >= 128 && images[i].width >= 128) {
+        processImage(images[i], forwardPort);
+    }
 }
 
 async function processImage(img, port) {
-    const dataUrl = await awaitDataUrl(img.src);
+    const dataUrl = await ImageUtils.getDataUrlAsync(img.src);
     const hash = md5(dataUrl);  
     if (!imageElements[hash]) {
         imageElements[hash] = [img];
@@ -25,23 +28,13 @@ async function processImage(img, port) {
         ImageSrc: img.src
     };
     port.postMessage(message);
-    // toDataURL(img.src, function(dataURL){
-    //     const hash = md5(dataURL);  
-    //     if (!imageElements[hash]) {
-    //         imageElements[hash] = [img];
-    //     } else {
-    //         imageElements[hash].push(img);
-    //     }
-    //     const message = {
-    //         ImageHash: hash,
-    //         ImageSrc: dataURL
-    //     };
-    //     port.postMessage(message);
-    // });
 }
 
 function processMessage(message) {
     const imageElement = imageElements[message.ImageHash][0];
+    if (!message.Alert) {
+        return;
+    }
     if (!imageElement.parentNode.className.includes("inquest-container")) {
         const containerElement = document.createElement('div');
         containerElement.style.display = "inline-block";
@@ -50,31 +43,37 @@ function processMessage(message) {
         containerElement.appendChild(imageElement);
     }
     const parentNode = imageElement.parentNode;
-    if ([...parentNode.children].some(x => x.tagName.toUpperCase() === "H2")) {
-        const subContainerElement = [...parentNode.children].find(x => x.tagName.toUpperCase() === "H2");
-        const labelElement = [...subContainerElement.children].find(x => x.tagName.toUpperCase() === "SPAN");
+    let isLabelPresent = false;
+    const headerElement = [...parentNode.children].find(x => x.tagName.toUpperCase() === "H2" && 
+        parseInt(x.getAttribute("data-inquest-offset-x")) === message.offsetX && 
+        parseInt(x.getAttribute("data-inquest-offset-y")) === message.offsetY);
+    isLabelPresent = !!headerElement;
+
+    // if ([...parentNode.children].some(x => x.tagName.toUpperCase() === "H2")) {
+    if (isLabelPresent) {
+        const subContainerElement = [...parentNode.children].find(x => x.tagName.toUpperCase() === "H2" && 
+            parseInt(x.getAttribute("data-inquest-offset-x")) === message.offsetX && 
+            parseInt(x.getAttribute("data-inquest-offset-y")) === message.offsetY);
+        const labelElement = [...subContainerElement.children]
+            .find(x => x.tagName.toUpperCase() === "SPAN");
         labelElement.innerText += "\n\ " + message.Name + ": " + message.Result;
     } else {
         const subcontainerElement = document.createElement('h2');
+        subcontainerElement.style.left = message.offsetX;
+        subcontainerElement.style.top = message.offsetY;
+        subcontainerElement.style.width = 128;
+        subcontainerElement.setAttribute("data-inquest-offset-x", message.offsetX);
+        subcontainerElement.setAttribute("data-inquest-offset-y", message.offsetY);
         parentNode.appendChild(subcontainerElement);
+
+        const reticleElement = document.createElement('div');
+        reticleElement.width = 128;
+        reticleElement.height = 128;
+        subcontainerElement.appendChild(reticleElement);
+
         const labelElement = document.createElement('span');
         labelElement.style.whiteSpace = "pre";
         labelElement.innerText = message.Name + ": " + message.Result;
         subcontainerElement.appendChild(labelElement);
     }
-}
-function awaitDataUrl(url) {
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('get', url);
-        xhr.responseType = 'blob';
-        xhr.onload = function(){
-            const fr = new FileReader();
-            fr.onload = function(){
-                resolve(this.result);
-            }; 
-            fr.readAsDataURL(xhr.response);
-        };
-        xhr.send();
-      });
 }

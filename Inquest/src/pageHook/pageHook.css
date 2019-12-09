@@ -6,6 +6,7 @@
     position: absolute; 
     top: -19px; 
     width: 100%; 
+    margin: 0;
  }
 
 .inquest-container h2 span { 
@@ -15,4 +16,15 @@
     background: rgb(0, 0, 0); /* fallback color */
     background: rgba(0, 0, 0, 0.7);
     padding: 5px; 
+    position: absolute;
+    top: 0;
+    left: 0;
+ }
+
+ .inquest-container h2 div { 
+    height: 128;
+    width: 128;
+    border-style: solid;
+    border-width: 0.5px;
+    border-color: lawngreen;
  }
