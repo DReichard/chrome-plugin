@@ -32,4 +32,20 @@ function loadImage(src) {
       img.src = src;
     });
   };
+
+function getDataUrl(url) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('get', url);
+        xhr.responseType = 'blob';
+        xhr.onload = function(){
+            const fr = new FileReader();
+            fr.onload = function(){
+                resolve(this.result);
+            }; 
+            fr.readAsDataURL(xhr.response);
+        };
+        xhr.send();
+    });
+}
   
