@@ -1,20 +1,16 @@
-class ImagePipeline {
-    _analyzers;
-    _callbacks;
+
+export default class ImagePipeline {
 
     constructor() {
         this._analyzers = [];
         this._callbacks = [];
     }
 
-    Analyze(image) {
-
-        const batched = image.reshape([1, 1, imageSize, imageSize]);
-
-        this._analyzers.forEach(analyzer => {
-            const analysisResult = analyzer.Analyze(batched);
+    Analyze(image, state) {
+        this._analyzers.forEach(async analyzer => {
+            const analysisResult = await analyzer.Analyze(image);
             this._callbacks.forEach(callbackFunction => {
-                callbackFunction(analysisResult);
+                callbackFunction(analysisResult, state);
             });
         });
     }

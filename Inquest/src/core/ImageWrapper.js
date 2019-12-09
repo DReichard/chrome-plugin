@@ -1,8 +1,7 @@
 const ImageUtils = require("../image_loading/image_processing");
+const tf = require('@tensorflow/tfjs');
 
-class ImageWrapper {
-
-    Image;
+export default class ImageWrapper {
 
     constructor(tensor) {
         this.Image = tensor;
@@ -27,10 +26,11 @@ class ImageWrapper {
         return new ImageWrapper(img);
     }
 
-    async static FromBase64StringAsync(imageBase64str) {
+    static async FromBase64StringAsync(imageBase64str) {
         const parsedImg = await ImageUtils.base64ToImage(imageBase64str);
         const img = tf.browser.fromPixels(parsedImg, 1).toFloat();
-        return new ImageWrapper(img);
+        const batched = img.reshape([1, 1, 128, 128]);
+        return new ImageWrapper(batched);
     }
 
     static async FromPathAsync(url) {
