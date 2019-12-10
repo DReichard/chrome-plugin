@@ -2,8 +2,8 @@
 export default class ImagePipeline {
 
     constructor() {
-        this._analyzers = [];
-        this._callbacks = [];
+        this._analyzers = new Set();
+        this._callbacks = new Set();
     }
 
     Analyze(image, state) {
@@ -16,18 +16,18 @@ export default class ImagePipeline {
     }
 
     RegisterCallback(callback) {
-        this._callbacks.push(callback);
+        this._callbacks.add(callback);
     }
 
-    DeregisterCallback() {
-        this._callbacks = this._callbacks.filter(p => p !== callback);
+    DeregisterCallback(callback) {
+        this._callbacks.delete(callback);
     }
 
     RegisterAnalyzer(analyzer) {
-        this._analyzers.push(analyzer);
+        this._analyzers.add(analyzer);
     }
 
     DeregisterAnalyzer(analyzer) {
-        this._analyzers = this._analyzers.filter(p => p !== analyzer);
+        this._analyzers.delete(analyzer);
     }
 }
