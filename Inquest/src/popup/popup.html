@@ -1,0 +1,35 @@
+<html>
+    <head>
+    </head>
+    <body style="width: 400px; margin: 12px;">
+        <h4>
+            Settings
+        </h4>
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="enableRsSwitch"><br>
+            <label class="custom-control-label" for="enableRsSwitch">Enable RS detector</label>
+        </div>
+        <div>
+            <label for="rsThreshold">
+                RS detector alarm threshold:
+                <span id="rsThresholdDisplay" style="font-weight: bold;"></span>
+            </label>
+            <input type="range" class="custom-range" min="0" max="1" step="0.01" id="rsThreshold">
+        </div>
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="enableResNetSwitch"><br>
+            <label class="custom-control-label" for="enableResNetSwitch">Enable ResNet detector</label>
+        </div>
+        <div>
+            <label for="resNetThreshold">
+                ResNet detector alarm threshold:
+                <span id="resNetThresholdDisplay" style="font-weight: bold;"></span>
+            </label>
+            <input type="range" class="custom-range" min="0" max="1" step="0.01" id="resNetThreshold">
+        </div>
+        <div class="custom-control custom-switch">
+             <input type="checkbox" class="custom-control-input" id="showAllReticlesSwitch"><br>
+             <label class="custom-control-label" for="showAllReticlesSwitch">Show all reticles and labels</label>
+        </div>
+    </body>
+</html>

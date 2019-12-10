@@ -6,7 +6,8 @@
     "back-build": "webpack --config=src/background/webpack.config.jss --mode=development",
     "back-watch": "webpack --config=src/background/webpack.config.js --mode=development -w --display=verbose",
     "hook-watch": "webpack --config=src/pageHook/webpack.config.js --mode=development -w --display=verbose",
-    "hook-build": "webpack --config=src/pageHook/webpack.config.js --mode=development"
+    "hook-build": "webpack --config=src/pageHook/webpack.config.js --mode=development",
+    "popup-watch": "webpack --config=src/popup/webpack.config.js --mode=development -w --display=verbose"
   },
   "private": true,
   "dependencies": {
@@ -20,8 +21,11 @@
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
     "@tensorflow/tfjs": "^1.0.2",
+    "bootstrap": "^4.4.1",
     "core-js": "^2.5.4",
+    "jquery": "^3.4.1",
     "md5": "^2.2.1",
+    "popper.js": "^1.16.0",
     "rxjs": "~6.2.0",
     "zone.js": "~0.8.26"
   },
@@ -39,6 +43,7 @@
     "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
     "gulp-uglify": "^3.0.2",
+    "html-webpack-plugin": "^3.2.0",
     "style-loader": "^0.23.1",
     "ts-node": "~7.0.0",
     "tsify": "^4.0.1",

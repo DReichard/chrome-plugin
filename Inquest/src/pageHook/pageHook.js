@@ -2,6 +2,11 @@ const md5 = require("md5");
 require('./pageHook.css');
 const ImageUtils = require("../image_loading/image_processing")
 
+let showAllReticles = true;
+chrome.storage.sync.get("ShowAllReticles", function(result) {
+    showAllReticles = result.ShowAllReticles;
+});
+
 const forwardPortName = "inquestForward";
 const forwardPort = chrome.runtime.connect({name: forwardPortName});
 forwardPort.onMessage.addListener(processMessage);
@@ -32,7 +37,7 @@ async function processImage(img, port) {
 
 function processMessage(message) {
     const imageElement = imageElements[message.ImageHash][0];
-    if (!message.Alert) {
+    if (!message.Alert && !showAllReticles) {
         return;
     }
     if (!imageElement.parentNode.className.includes("inquest-container")) {
@@ -49,7 +54,6 @@ function processMessage(message) {
         parseInt(x.getAttribute("data-inquest-offset-y")) === message.offsetY);
     isLabelPresent = !!headerElement;
 
-    // if ([...parentNode.children].some(x => x.tagName.toUpperCase() === "H2")) {
     if (isLabelPresent) {
         const subContainerElement = [...parentNode.children].find(x => x.tagName.toUpperCase() === "H2" && 
             parseInt(x.getAttribute("data-inquest-offset-x")) === message.offsetX && 
