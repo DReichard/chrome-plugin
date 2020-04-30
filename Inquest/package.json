@@ -23,7 +23,7 @@
     "@tensorflow/tfjs": "^1.0.2",
     "bootstrap": "^4.4.1",
     "core-js": "^2.5.4",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "md5": "^2.2.1",
     "popper.js": "^1.16.0",
     "rxjs": "~6.2.0",
